@@ -4,7 +4,7 @@
 // @run-at     document-start
 // @author     Amm0ni4
 // @noframes
-// @version        94.0.30
+// @version        94.0.35
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_addStyle
@@ -432,7 +432,6 @@
 // @match        https://adbypass.org/bypass?bypass=*
 // @match       https://fc-lc.xyz/*
 // @match       https://datanodes.to/download
-// @match       *://dailyuploads.net/*
 // @match       *://www.ryuugames.com/?eroge=*
 // @match       *://anchoreth.com/r-adsh?t=i&v=*
 // @match       *://*.btcut.io/*
@@ -595,7 +594,7 @@
 // @include     /playpastelinks.com/
 // @include     /stfly.(cc|xyz|biz|me)|stly.link|(techtrendmakers|gadnest|optimizepics|bookbucketlyst).com|(blogbux|blogesque|exploreera|explorosity|trekcheck|torovalley|travize|metoza|techlike|crenue|atravan|transoa|techmize|snaplessons|airevue).net/
 // @include     /ielts-isa.edu.vn/
-// @include     /flash.getpczone.com/
+// @include     /flash.getpczone.com|get.rahim-soft.com/
 // @include     /(surfsees|travelagancy|venzoars|webbooki|pokoarcade|edigitalizes|finquizy).com|(fitnessholic|myindigocard).net|stockinsights.in|pandagamepad.co|techsl.online/
 // @include     /cgsonglyricz.in|www.techhubcap.com/
 // @include     /cryptings.in|vbnmx.online/
@@ -657,6 +656,7 @@
 // @include     /freemodsapp.in/
 // @include     /pandaznetwork.com/
 // @include     /(upfiles.app|haxi.online|upfion.com)/
+// @include     /dailyuploads.net/
 // @include     /app2.olamovies.download\/generate\/\?id=/
 // @include     /foodtechnos.in/
 // @include     /mixrootmod.com/
@@ -674,6 +674,12 @@
 // @include     /(pelistop.xyz|tuconstanteonline.com|librolandia.cc|posicionamientoweb.click|dietadisociada.info)/
 // @include     /subtituladas.org\/enlace/
 // @include     /flycutlink.com/
+// @include     /drop.download/
+// @include     /file-upload.org/
+// @include     /up-4ever.net/
+// @include     /frdl.is/
+// @include     /mega4upload.net/
+// @include     /filespayouts.com/
 // @include /^(https?:\/\/)(.+)?((actualpost|americanstylo|beautifulfashionnailart|dadinthemaking|glowandglamcorner|listofthis|lobirtech|travelperi|vepiv|seydisehirmansethaber|turkiyertg|tophotelsukraine|balatroltd|tenorminiuk|icryptowin|chronoat|ecoinfotec|bcsclass|mainitbd|newselab|dizok|uzaay|tophistoryview|9sblog|ubnem|techavash|6harfli|professionaley|playghub|apkvmod|apkallworld|techoflix|toplistee|games2mobile|nivtu|bflig|jplna|bilgilendirici|zoninews|smoplay|m-womenstyle|bnirfinance|fuyde).com|(makego|sakazi|momge|englishgrammarpro|arab-plus).net|askerlikforum.com.tr|misterio.ro|(forp|bevery|fanuze|twogamehup).xyz|gamcabd.org|gamerking.shop)(\/.*)/
 // @include     /(mega-enlace|acortados).com/
 // @include     /^https:\/\/(.*\.|)(playonpc.online|quins.us|(tradeshowrating|historyofyesterday|retrotechreborn|insurelean|ecosolardigest|finance240|2wheelslife).com|gally.shop|qanin.xyz|evegor.net)\/.*/
@@ -2476,9 +2482,6 @@
         setInterval(function() {clickAllValidButtons();}, 2000); //Click all the valid buttons every 2 seconds
     }
 
-    // uploadrar - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/87
-    /flash.getpczone.com/.test(url) ? afterDOMLoaded(function() {clickIfNotDisabled('#downloadbtn')}) : null;
-
     // zipshort.net - https://github.com/uBlockOrigin/uAssets/discussions/17361#discussioncomment-9971779
     /ontechhindi.com/.test(url) ? afterDOMLoaded(function() {
         clickIfExists('#rtg > center:nth-child(2) > button:nth-child(1)');
@@ -2706,26 +2709,6 @@
     //suncy.net (upfiles.com) (seen used in fiuxy2.co)
     /sunci.net/.test(url) ? afterDOMLoaded(function() {clickIfNotDisabled('button#link-button.btn-primary:not(.btn-download)')}) : null;
 
-    // upfiles.app
-    /(upfiles.app|haxi.online|upfion.com)\/[^\/]+/.test(url) ? afterDOMLoaded(function() {
-        clickIfCorrectText('#link-button', 'Continue');
-        clickIfRecaptchaSolved('#link-button');
-        redirectIfNotDisabled('a#link-button');
-    }) : null;
-
-    // datanodes - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/140
-    /datanodes.to\/download/.test(url) ? afterDOMLoaded(function() {
-        clickIfExists('#method_free')
-        clickIfCorrectText('button.py-3', 'Download')
-        //setTimeout(function() {clickIfCorrectText('button.py-3', 'Continue')}, 6000)
-    }) : null;
-
-    // dailyuploads - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/123
-    /dailyuploads.net\/[^\/]+/.test(url) ? afterDOMLoaded(function() {
-        clickIfRecaptchaSolved('#downloadbtn');
-        //redirectIfExists('a#fbtn1');
-    }) : null;
-
     // ryuugames
     /www.ryuugames.com\/\?eroge=.*$/.test(url) ? afterDOMLoaded(function() {
         redirect(atob(document.querySelector('#wpsafe-link > a:nth-child(1)').href.split('?safelink_redirect=')[1]).match(/"safelink":"(.*?)"/)[1]);
@@ -2823,6 +2806,71 @@
         openHCaptchaWhenVisible();
         clickIfNotDisabled('#invisibleCaptchaShortlink');
         redirectIfNotDisabled('a.get-link');
+    }) : null;
+
+    // upfiles.app
+    /(upfiles.app|haxi.online|upfion.com)\/[^\/]+/.test(url) ? afterDOMLoaded(function() {
+        clickIfCorrectText('#link-button', 'Continue');
+        clickIfRecaptchaSolved('#link-button');
+        redirectIfNotDisabled('a#link-button');
+    }) : null;
+
+    // datanodes - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/140
+    /datanodes.to\/download/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('#method_free')
+        clickIfCorrectText('button.py-3', 'Download')
+        //setTimeout(function() {clickIfCorrectText('button.py-3', 'Continue')}, 6000)
+    }) : null;
+
+    // dailyuploads - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/123
+    /dailyuploads.net\/[^\/]+/.test(url) ? afterDOMLoaded(function() {
+        clickIfRecaptchaSolved('#downloadbtn');
+        redirectIfExists('a#fbtn1');
+    }) : null;
+
+    // uploadrar - https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/issues/87
+    /flash.getpczone.com|get.rahim-soft.com/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('.mngez-free-download[name="method_free"]');
+        clickIfNotDisabled('#downloadbtn');
+        redirectIfNotDisabled('a#netTab');
+    }) : null;
+
+    // drop.download
+    /drop.download/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('#method_free');
+        redirectIfNotDisabled('a.btn-download');
+    }) : null;
+
+    // frdl.is
+    /frdl.is/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('#downloadbtnfree');
+        redirectIfNotDisabled('a.btn-primary.btn-block.mb-4');
+    }) : null;
+
+    // mega4upload.net
+    /mega4upload.net/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('input[value="Free Download"]');
+        clickIfRecaptchaSolved('button#downloadbtn');
+    }) : null;
+
+    // filespayouts
+    /filespayouts.com/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('input#method_free');
+        clickIfCloudflareCaptchaSolved('#downloadbtn');
+    }) : null;
+
+    // file-upload.org
+    /file-upload.org/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('.btn.btn-outline-primary.submit-btn.m-2[name="method_free"]');
+        clickIfHCaptchaSolved('#downloadbtn:not([disabled="disabled"])');
+        redirectIfNotDisabled('a#downloadButton');
+    }) : null;
+
+    // up-4ever.net
+    /up-4ever.net/.test(url) ? afterDOMLoaded(function() {
+        clickIfExists('input.btn-dark[name="method_free"]');
+        clickIfRecaptchaSolved('#downloadbtn:not(.disabled)');
+        redirectIfNotDisabled('a#downLoadLinkButton');
     }) : null;
 
     // Timer boost list
