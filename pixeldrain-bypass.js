@@ -1,13 +1,14 @@
 // ==UserScript==
-// @name         Pixeldrain Download Bypass
+// @name         Pixeldrain Download Bypass with Auto-Copy
 // @namespace    http://tampermonkey.net/
-// @version      1.6.3
-// @description  Bypass Pixeldrain Download Limit
-// @author       MegaLime0, honey, Nurarihyon
+// @version      1.7.0
+// @description  Bypass Pixeldrain Download Limit and automatically copy links to clipboard
+// @author       MegaLime0, honey, Nurarihyon, Modified by user
 // @match        https://pixeldrain.com/*
 // @match        https://cdn.pd8.workers.dev/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pixeldrain.com
 // @grant        GM_openInTab
+// @grant        GM_notification
 // @downloadURL https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.user.js
 // @updateURL https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.meta.js
 // ==/UserScript==
@@ -18,6 +19,44 @@
     const bypassUrl = "https://pd.cybar.xyz/";
     const idRegex = /\/api\/file\/(\w+)\//;
 
+    // Function to create notification popup
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '15px 20px';
+        notification.style.background = '#a4be8c';
+        notification.style.color = '#2f3541';
+        notification.style.borderRadius = '5px';
+        notification.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+        notification.style.zIndex = '9999';
+        notification.style.fontSize = '14px';
+        notification.style.fontWeight = 'bold';
+        notification.style.display = 'flex';
+        notification.style.alignItems = 'center';
+
+        const icon = document.createElement('span');
+        icon.textContent = '✓ ';
+        icon.style.marginRight = '8px';
+        icon.style.fontSize = '16px';
+
+        const text = document.createElement('span');
+        text.textContent = message;
+
+        notification.appendChild(icon);
+        notification.appendChild(text);
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+    }
 
     function getBypassUrls(urlType) {
         const currentUrl = window.location.href;
@@ -170,7 +209,7 @@
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
+                        URL.revoObjectURL(url);
                     } else {
                         console.error('Failed to extract file identifier from URL.');
                     }
@@ -184,6 +223,39 @@
         }
 
         popupBox.style.display = 'block';
+    }
+
+    // Auto-copy to clipboard function
+    function autoCopyBypassLinks() {
+        const currentUrl = window.location.href;
+
+        // For single file
+        if (currentUrl.includes("https://pixeldrain.com/u/")) {
+            const alteredUrl = getBypassUrls("file");
+            navigator.clipboard.writeText(alteredUrl).then(function() {
+                showNotification("Bypass link copied to clipboard");
+            }, function(err) {
+                console.error('Failed to copy URL: ', err);
+                showNotification("Failed to copy bypass link");
+            });
+        }
+
+        // For gallery
+        if (currentUrl.includes("https://pixeldrain.com/l/")) {
+            // Wait a bit for the page to load completely
+            setTimeout(() => {
+                let result = getBypassUrls("gallery");
+                if (result && result.bypassUrlList && result.bypassUrlList.length > 0) {
+                    const urls = result.bypassUrlList.join('\n');
+                    navigator.clipboard.writeText(urls).then(function() {
+                        showNotification(`${result.bypassUrlList.length} bypass links copied to clipboard`);
+                    }, function(err) {
+                        console.error('Failed to copy URLs: ', err);
+                        showNotification("Failed to copy bypass links");
+                    });
+                }
+            }, 1500); // Wait 1.5 seconds for the page to load
+        }
     }
 
     if (window.location.href.includes('pixeldrain.com')) {
@@ -228,23 +300,44 @@
         button.addEventListener('click', handleButtonClick);
         linksButton.addEventListener('click', handleLinksButtonClick);
 
-        const labels = document.querySelectorAll('div.label');
-        labels.forEach(label => {
-            if (label.textContent.trim() === 'Size') {
-                const nextElement = label.nextElementSibling;
-                if (nextElement) {
-                    nextElement.insertAdjacentElement('afterend', linksButton);
-                    nextElement.insertAdjacentElement('afterend', button);
+        // Add buttons to the page
+        function addButtons() {
+            const labels = document.querySelectorAll('div.label');
+            let buttonsAdded = false;
+
+            labels.forEach(label => {
+                if (label.textContent.trim() === 'Size') {
+                    const nextElement = label.nextElementSibling;
+                    if (nextElement) {
+                        nextElement.insertAdjacentElement('afterend', linksButton);
+                        nextElement.insertAdjacentElement('afterend', button);
+                        buttonsAdded = true;
+                    }
                 }
-            }
-        });
+            });
+
+            return buttonsAdded;
+        }
+
+        // Try to add buttons, if elements aren't loaded yet, retry after a delay
+        if (!addButtons()) {
+            const buttonCheckInterval = setInterval(() => {
+                if (addButtons()) {
+                    clearInterval(buttonCheckInterval);
+                }
+            }, 500);
+
+            // Stop checking after 10 seconds max
+            setTimeout(() => {
+                clearInterval(buttonCheckInterval);
+            }, 10000);
+        }
 
         document.body.appendChild(popupBox);
 
-        function positionPopupBox(popupBox) {
-            const popupRect = popupBox.getBoundingClientRect();
-            popupBox.style.top = `calc(50% - ${popupRect.height / 2}px)`;
-            popupBox.style.left = `calc(50% - ${popupRect.width / 2}px)`;
-        }
+        // Auto-copy on page load after a slight delay to ensure all elements are loaded
+        setTimeout(() => {
+            autoCopyBypassLinks();
+        }, 1000);
     }
 })();
