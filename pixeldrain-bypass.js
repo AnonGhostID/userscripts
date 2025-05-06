@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pixeldrain Download Bypass with Auto-Copy
 // @namespace    http://tampermonkey.net/
-// @version      1.7.0
+// @version      1.7.1
 // @description  Bypass Pixeldrain Download Limit and automatically copy links to clipboard
 // @author       MegaLime0, honey, Nurarihyon, Modified by user
 // @match        https://pixeldrain.com/*
@@ -9,8 +9,9 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pixeldrain.com
 // @grant        GM_openInTab
 // @grant        GM_notification
-// @downloadURL https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.user.js
-// @updateURL https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.meta.js
+// @grant        GM_setClipboard
+// @downloadURL  https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.user.js
+// @updateURL    https://update.greasyfork.org/scripts/491326/Pixeldrain%20Download%20Bypass.meta.js
 // ==/UserScript==
 
 (function() {
@@ -175,14 +176,12 @@
             copyButton.style.marginRight = '5px';
             copyButton.addEventListener('click', function() {
                 const urls = bypassLinks.join('\n');
-                navigator.clipboard.writeText(urls).then(function() {
-                    copyButton.textContent = "✔️ Copied";
-                    setTimeout(function() {
-                        copyButton.textContent = '🔗 Copy URL';
-                    }, 2500);
-                }, function(err) {
-                    console.error('Failed to copy URLs: ', err);
-                });
+                // Use GM_setClipboard instead of navigator.clipboard.writeText
+                GM_setClipboard(urls);
+                copyButton.textContent = "✔️ Copied";
+                setTimeout(function() {
+                    copyButton.textContent = '🔗 Copy URL';
+                }, 2500);
             });
             buttonContainer.appendChild(copyButton);
 
@@ -209,7 +208,7 @@
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-                        URL.revoObjectURL(url);
+                        URL.revokeObjectURL(url);
                     } else {
                         console.error('Failed to extract file identifier from URL.');
                     }
@@ -232,12 +231,14 @@
         // For single file
         if (currentUrl.includes("https://pixeldrain.com/u/")) {
             const alteredUrl = getBypassUrls("file");
-            navigator.clipboard.writeText(alteredUrl).then(function() {
+            // Use GM_setClipboard instead of navigator.clipboard.writeText
+            try {
+                GM_setClipboard(alteredUrl);
                 showNotification("Bypass link copied to clipboard");
-            }, function(err) {
+            } catch (err) {
                 console.error('Failed to copy URL: ', err);
                 showNotification("Failed to copy bypass link");
-            });
+            }
         }
 
         // For gallery
@@ -247,12 +248,14 @@
                 let result = getBypassUrls("gallery");
                 if (result && result.bypassUrlList && result.bypassUrlList.length > 0) {
                     const urls = result.bypassUrlList.join('\n');
-                    navigator.clipboard.writeText(urls).then(function() {
+                    // Use GM_setClipboard instead of navigator.clipboard.writeText
+                    try {
+                        GM_setClipboard(urls);
                         showNotification(`${result.bypassUrlList.length} bypass links copied to clipboard`);
-                    }, function(err) {
+                    } catch (err) {
                         console.error('Failed to copy URLs: ', err);
                         showNotification("Failed to copy bypass links");
-                    });
+                    }
                 }
             }, 1500); // Wait 1.5 seconds for the page to load
         }
